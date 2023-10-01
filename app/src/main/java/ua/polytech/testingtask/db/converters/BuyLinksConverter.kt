@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import ua.polytech.testingtask.api.models.BuyLink
 
-class ConverterBuyLinks {
+class BuyLinksConverter {
     @TypeConverter
     fun fromBuyLinksList(buyLinks: List<BuyLink>): String {
         val gson = Gson()

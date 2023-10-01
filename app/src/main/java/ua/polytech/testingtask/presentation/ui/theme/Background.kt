@@ -1,4 +1,4 @@
-package ua.polytech.testingtask.ui.theme
+package ua.polytech.testingtask.presentation.ui.theme
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize

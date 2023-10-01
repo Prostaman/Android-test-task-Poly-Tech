@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ua.polytech.testingtask
+package ua.polytech.testingtask.presentation
 
 
 interface Destination {

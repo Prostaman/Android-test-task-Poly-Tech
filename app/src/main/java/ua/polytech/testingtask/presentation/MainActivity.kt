@@ -1,4 +1,4 @@
-package ua.polytech.testingtask
+package ua.polytech.testingtask.presentation
 
 
 import android.content.Context
@@ -9,19 +9,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import ua.polytech.testingtask.catalog.CatalogScreen
-import ua.polytech.testingtask.books.ListOfBooksScreen
+import ua.polytech.testingtask.presentation.catalog.CatalogScreen
+import ua.polytech.testingtask.presentation.books.ListOfBooksScreen
 import ua.polytech.testingtask.common.checkInternet.isConnectedToInternet
 import ua.polytech.testingtask.db.DbUpdateService
-import ua.polytech.testingtask.ui.theme.AppTheme
-import ua.polytech.testingtask.ui.theme.SetImageBackground
+import ua.polytech.testingtask.presentation.ui.theme.AppTheme
+import ua.polytech.testingtask.presentation.ui.theme.SetImageBackground
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -54,20 +53,26 @@ fun MyApp(context: Context) {
         startDestination = Catalog.route,
     ) {
         composable(route = Catalog.route) {
-            CatalogScreen(onClickCategory = { listNameEncoded ->
-                navController.navigateSingleTopTo(ListOfBooks.route + "?listNameEncoded=$listNameEncoded")
+            CatalogScreen(onClickCategory = { listNameEncoded, listName ->
+                navController.navigateSingleTopTo(
+                    route = "${ListOfBooks.route}?listNameEncoded=$listNameEncoded&listName=$listName"
+                )
             })
         }
-        composable(route = ListOfBooks.route + "?listNameEncoded={listNameEncoded}") { backStackEntry ->
+        composable(route = "${ListOfBooks.route}?listNameEncoded={listNameEncoded}&listName={listName}") { backStackEntry ->
             val listNameEncoded = backStackEntry.arguments?.getString("listNameEncoded") ?: ""
-            ListOfBooksScreen(listNameEncoded = listNameEncoded,
+            val listName = backStackEntry.arguments?.getString("listName") ?: ""
+
+            ListOfBooksScreen(
+                listNameEncoded = listNameEncoded,
+                listName = listName,
                 onClickBuy = { url ->
                     val customTabsIntent: CustomTabsIntent =
                         CustomTabsIntent.Builder().build()
                     customTabsIntent.launchUrl(context, Uri.parse(url))
-                })
+                }
+            )
         }
-
     }
 }
 

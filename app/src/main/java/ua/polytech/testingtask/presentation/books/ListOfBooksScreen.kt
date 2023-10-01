@@ -1,4 +1,4 @@
-package ua.polytech.testingtask.books
+package ua.polytech.testingtask.presentation.books
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -40,9 +40,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ua.polytech.testingtask.api.models.Book
 import ua.polytech.testingtask.api.other.Status
-import ua.polytech.testingtask.ui.CentralizeCircularProgressBar
-import ua.polytech.testingtask.ui.SearchCategoryInput
-import ua.polytech.testingtask.ui.rememberEditableUserInputState
+import ua.polytech.testingtask.presentation.ui.CentralizeCircularProgressBar
+import ua.polytech.testingtask.presentation.ui.SearchCategoryInput
+import ua.polytech.testingtask.presentation.ui.rememberEditableUserInputState
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest.Builder
 import androidx.compose.foundation.lazy.items
@@ -57,18 +57,21 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import ua.polytech.testingtask.ui.theme.ItemShape
+import ua.polytech.testingtask.presentation.ui.theme.ItemShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import ua.polytech.testingtask.R
 import ua.polytech.testingtask.common.checkInternet.isConnectedToInternet
-import ua.polytech.testingtask.ui.ErrorScreen
-import ua.polytech.testingtask.ui.theme.md_theme_light_surfaceTint
+import ua.polytech.testingtask.presentation.ui.ErrorScreen
+import ua.polytech.testingtask.presentation.ui.theme.md_theme_light_outline
+import ua.polytech.testingtask.presentation.ui.theme.md_theme_light_surfaceTint
 
 @Composable
 fun ListOfBooksScreen(
     listNameEncoded: String,
+    listName:String,
     viewModel: ListOfBooksViewModel = hiltViewModel(),
     onClickBuy: (url: String) -> Unit
 ) {
@@ -85,7 +88,7 @@ fun ListOfBooksScreen(
 
     when (responseState.status) {
         Status.SUCCESS -> {
-            Screen(viewModel = viewModel, onClickBuy = onClickBuy)
+            Screen(viewModel = viewModel, onClickBuy = onClickBuy, listName=listName)
         }
 
         Status.ERROR -> {
@@ -102,7 +105,7 @@ fun ListOfBooksScreen(
 }
 
 @Composable
-fun Screen(viewModel: ListOfBooksViewModel, onClickBuy: (url: String) -> Unit) {
+fun Screen(viewModel: ListOfBooksViewModel, onClickBuy: (url: String) -> Unit, listName: String) {
     var isSearchVisible by remember { mutableStateOf(true) }
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -130,12 +133,28 @@ fun Screen(viewModel: ListOfBooksViewModel, onClickBuy: (url: String) -> Unit) {
         enter = slideInVertically(initialOffsetY = { fullHeight -> -fullHeight }),
         exit = slideOutVertically(targetOffsetY = { fullHeight -> -fullHeight }),
     ) {
-        SearchCategoryInput(
-            onTextChanged = { viewModel.textOfSearchChanged(it) },
-            editableUserInputState = editableUserInputState,
-            hintText = "Write title or author of book",
-            onTextEmpty = {viewModel.textOfSearchEmpty() }
-        )
+        Column{
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .background(color = md_theme_light_outline)) {
+                Text(text = listName,
+                    modifier = Modifier.fillMaxWidth().padding(start=16.dp,end=16.dp, bottom = 8.dp),
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold, // Set the text to bold
+                        fontSize = 20.sp // Adjust the font size as needed
+                    )
+                )
+            }
+
+            SearchCategoryInput(
+                onTextChanged = { viewModel.textOfSearchChanged(it) },
+                editableUserInputState = editableUserInputState,
+                hintText = "Write title or author of book",
+                onTextEmpty = {viewModel.textOfSearchEmpty() }
+            )
+        }
+
     }
 
 }
@@ -152,10 +171,10 @@ private fun Grid(list: List<Book>, nestedScrollConnection: NestedScrollConnectio
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .height(88.dp)
             )
         }
-        items(list) { book ->
+        items(list, key={"${it.title}-${it.author}"}) { book ->
             ExploreItem(book = book, onClickBuy = onClickBuy)
         }
         item {

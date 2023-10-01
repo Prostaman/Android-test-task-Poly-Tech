@@ -1,4 +1,4 @@
-package ua.polytech.testingtask.ui.theme
+package ua.polytech.testingtask.presentation.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme

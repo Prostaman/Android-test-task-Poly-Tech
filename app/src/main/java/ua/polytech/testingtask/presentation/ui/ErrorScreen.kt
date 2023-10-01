@@ -1,4 +1,4 @@
-package ua.polytech.testingtask.ui
+package ua.polytech.testingtask.presentation.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ua.polytech.testingtask.ui.theme.md_theme_light_onSurfaceVariant
+import ua.polytech.testingtask.presentation.ui.theme.md_theme_light_onSurfaceVariant
 
 @Composable
 fun ErrorScreen(

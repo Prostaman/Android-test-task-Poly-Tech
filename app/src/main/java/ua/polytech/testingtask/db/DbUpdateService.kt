@@ -69,22 +69,23 @@ class DbUpdateService : Service() {
         }
 
         dbScope.launch {
-           // repository.getListOfBooksAllCategories().collect { localData ->
-            Log.d("Catalog123","catalog:${networkDataBooks.size}")
+            repository.getListOfBooksAllCategories().collect { localData ->
                 networkDataBooks.forEach { catalog ->
-
-//                    val index = localData.indexOf(localData.find { it.listNameEncoded == catalog.listNameEncoded })
-//                    if (index != -1) {
-//                        if (isDifferenceInBooks(catalog.books, localData[index].books)) {
-//                            repository.insertBooks(ResultsListOfBooksOfCategory(listNameEncoded = catalog.listNameEncoded, books = catalog.books))
-//                            downloadAndCacheImages(catalog)
-//                        }
-                 //   } else {
+                    val index = localData.indexOf(localData.find { it.listNameEncoded == catalog.listNameEncoded })
+                    if (index != -1) {
+                        if (isDifferenceInBooks(catalog.books, localData[index].books)) {
+                            repository.insertBooks(ResultsListOfBooksOfCategory(listNameEncoded = catalog.listNameEncoded, books = catalog.books))
+                           // downloadAndCacheImages(catalog)
+                        }
+                    } else {
                         repository.insertBooks(ResultsListOfBooksOfCategory(listNameEncoded = catalog.listNameEncoded, books = catalog.books))
-                        downloadAndCacheImages(catalog)
-                 //   }
+                    //    downloadAndCacheImages(catalog)
+                    }
                 }
-           // }
+                localData.forEach {listOfBooks->
+                    downloadAndCacheImages( ListOfBooksModel(listNameEncoded = listOfBooks.listNameEncoded, books = listOfBooks.books))
+                }
+            }
 
         }
     }
@@ -117,10 +118,9 @@ class DbUpdateService : Service() {
                     Log.d(logOfService, "Error: $imageUrl")
                     // Обработайте ошибку, если не удалось загрузить или закэшировать изображение
                 }
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 Log.d(logOfService, "Error: $imageUrl, Exception:$e")
             }
-
         }
 
     }

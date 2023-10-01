@@ -1,4 +1,4 @@
-package ua.polytech.testingtask.ui.theme
+package ua.polytech.testingtask.presentation.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val md_theme_light_primary = Color(0xFF9A461F).copy(alpha = 0.8f)

@@ -1,4 +1,4 @@
-package ua.polytech.testingtask.ui
+package ua.polytech.testingtask.presentation.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.filter
 import ua.polytech.testingtask.R
-import ua.polytech.testingtask.ui.theme.md_theme_light_onSurfaceVariant
+import ua.polytech.testingtask.presentation.ui.theme.md_theme_light_onSurfaceVariant
 
 @Composable
 fun SearchCategoryInput(onTextChanged: (String) -> Unit,

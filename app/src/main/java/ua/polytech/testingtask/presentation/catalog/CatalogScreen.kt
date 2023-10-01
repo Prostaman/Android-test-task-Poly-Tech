@@ -1,7 +1,6 @@
-package ua.polytech.testingtask.catalog
+package ua.polytech.testingtask.presentation.catalog
 
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -35,19 +35,20 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ua.polytech.testingtask.api.models.Catalog
 import ua.polytech.testingtask.api.other.Status
-import ua.polytech.testingtask.ui.CentralizeCircularProgressBar
-import ua.polytech.testingtask.ui.SearchCategoryInput
-import ua.polytech.testingtask.ui.rememberEditableUserInputState
+import ua.polytech.testingtask.presentation.ui.CentralizeCircularProgressBar
+import ua.polytech.testingtask.presentation.ui.SearchCategoryInput
+import ua.polytech.testingtask.presentation.ui.rememberEditableUserInputState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.LocalContext
 import ua.polytech.testingtask.common.checkInternet.isConnectedToInternet
-import ua.polytech.testingtask.ui.ErrorScreen
+import ua.polytech.testingtask.presentation.ui.ErrorScreen
 
 @Composable
 fun CatalogScreen(
     viewModel: CatalogViewModel = hiltViewModel(),
-    onClickCategory: (listNameEncoded: String) -> Unit
+    onClickCategory: (listNameEncoded: String,listName:String) -> Unit
 ) {
     val context = LocalContext.current
     var errorRefreshTrigger by remember { mutableIntStateOf(0) }
@@ -80,7 +81,7 @@ fun CatalogScreen(
 
 
 @Composable
-fun Screen(viewModel: CatalogViewModel, onClickCategory: (listNameEncoded: String) -> Unit) {
+fun Screen(viewModel: CatalogViewModel, onClickCategory: (listNameEncoded: String, listName:String) -> Unit) {
     var isSearchVisible by remember { mutableStateOf(true) }
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -97,10 +98,13 @@ fun Screen(viewModel: CatalogViewModel, onClickCategory: (listNameEncoded: Strin
             }
         }
     }
-
+    val scrollState = rememberLazyListState()
     val suggestedCategories by viewModel.suggestedCategories.collectAsStateWithLifecycle()
 
-    Grid(list = suggestedCategories, nestedScrollConnection = nestedScrollConnection, onClickCategory)
+    Grid(
+        list = suggestedCategories, nestedScrollConnection = nestedScrollConnection, onClickCategory,
+        scrollState = scrollState
+    )
 
     val editableUserInputState = rememberEditableUserInputState(hint = "")
     AnimatedVisibility(
@@ -110,7 +114,7 @@ fun Screen(viewModel: CatalogViewModel, onClickCategory: (listNameEncoded: Strin
     ) {
         SearchCategoryInput(
             onTextChanged = { viewModel.textOfSearchChanged(it) },
-            onTextEmpty={viewModel.onTextEmpty()},
+            onTextEmpty = { viewModel.onTextEmpty() },
             editableUserInputState = editableUserInputState,
             hintText = "Write category"
         )
@@ -119,14 +123,19 @@ fun Screen(viewModel: CatalogViewModel, onClickCategory: (listNameEncoded: Strin
 }
 
 @Composable
-private fun Grid(list: List<Catalog>, nestedScrollConnection: NestedScrollConnection, onClickCategory: (listNameEncoded: String) -> Unit) {
+private fun Grid(
+    list: List<Catalog>,
+    nestedScrollConnection: NestedScrollConnection,
+    onClickCategory: (listNameEncoded: String,listName:String) -> Unit,
+    scrollState: LazyListState
+) {
     LazyColumn(
         modifier = Modifier
             .nestedScroll(nestedScrollConnection)
             .padding(start = 16.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        // Vertical spacing between items
-    ) {
+        state = scrollState
+        ) {
         item {
             Spacer(
                 modifier = Modifier
@@ -148,9 +157,9 @@ private fun Grid(list: List<Catalog>, nestedScrollConnection: NestedScrollConnec
 }
 
 @Composable
-private fun Category(catalog: Catalog, onClickCategory: (listNameEncoded: String) -> Unit) {
+private fun Category(catalog: Catalog, onClickCategory: (listNameEncoded: String,listName:String) -> Unit) {
     Button(
-        onClick = { onClickCategory(catalog.listNameEncoded) },
+        onClick = { onClickCategory(catalog.listNameEncoded,catalog.listName) },
         modifier = Modifier
             .height(100.dp)
             .fillMaxWidth(),
