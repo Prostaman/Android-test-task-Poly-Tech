@@ -1,0 +1,4 @@
+<resources>
+  <string name="domain">https://api.nytimes.com</string>
+  <string name="api_key">sWMyH6g0ZOpLTyTbTxACzMpc8yIZwhY6</string>
+</resources>
