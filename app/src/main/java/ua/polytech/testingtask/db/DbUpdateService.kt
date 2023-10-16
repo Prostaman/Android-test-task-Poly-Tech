@@ -14,21 +14,22 @@ import ua.polytech.testingtask.api.models.ListOfBooksModel
 import ua.polytech.testingtask.api.models.ResultsListOfBooksOfCategory
 import javax.inject.Inject
 import coil.ImageLoader
-import coil.memory.MemoryCache
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 
+
 @AndroidEntryPoint
 class DbUpdateService : Service() {
-
     @Inject
     lateinit var booksClient: ListOfBooksClient
-
     @Inject
     lateinit var repository: RoomRepository
+    @Inject
+    lateinit var imageLoader: ImageLoader
 
     private val networkRequestsScope = CoroutineScope(Dispatchers.IO)
     private val dbScope = CoroutineScope(Dispatchers.Main)
+
 
     override fun onBind(intent: Intent?): IBinder? {
         // Implement onBind if necessary
@@ -42,10 +43,12 @@ class DbUpdateService : Service() {
         return START_STICKY
     }
 
+
     private fun getAllListOfBooks() {
         networkRequestsScope.launch {
             try {
                 val response = booksClient.getAllListOfBooks()
+               // initImageLoader()
                 updateDB(response.resultsListOfBooksOfCategory.lists)
                 Log.d(logOfService, response.resultsListOfBooksOfCategory.lists.toString())
             } catch (e: Exception) {
@@ -71,19 +74,33 @@ class DbUpdateService : Service() {
         dbScope.launch {
             repository.getListOfBooksAllCategories().collect { localData ->
                 networkDataBooks.forEach { catalog ->
-                    val index = localData.indexOf(localData.find { it.listNameEncoded == catalog.listNameEncoded })
+                    val index =
+                        localData.indexOf(localData.find { it.listNameEncoded == catalog.listNameEncoded })
                     if (index != -1) {
                         if (isDifferenceInBooks(catalog.books, localData[index].books)) {
-                            repository.insertBooks(ResultsListOfBooksOfCategory(listNameEncoded = catalog.listNameEncoded, books = catalog.books))
-                           // downloadAndCacheImages(catalog)
+                            repository.insertBooks(
+                                ResultsListOfBooksOfCategory(
+                                    listNameEncoded = catalog.listNameEncoded,
+                                    books = catalog.books
+                                )
+                            )
                         }
                     } else {
-                        repository.insertBooks(ResultsListOfBooksOfCategory(listNameEncoded = catalog.listNameEncoded, books = catalog.books))
-                    //    downloadAndCacheImages(catalog)
+                        repository.insertBooks(
+                            ResultsListOfBooksOfCategory(
+                                listNameEncoded = catalog.listNameEncoded,
+                                books = catalog.books
+                            )
+                        )
                     }
                 }
-                localData.forEach {listOfBooks->
-                    downloadAndCacheImages( ListOfBooksModel(listNameEncoded = listOfBooks.listNameEncoded, books = listOfBooks.books))
+                localData.forEach { listOfBooks ->
+                    downloadAndCacheImages(
+                        ListOfBooksModel(
+                            listNameEncoded = listOfBooks.listNameEncoded,
+                            books = listOfBooks.books
+                        )
+                    )
                 }
             }
 
@@ -100,14 +117,9 @@ class DbUpdateService : Service() {
 
     private fun downloadAndCacheImage(imageUrl: String) {
         networkRequestsScope.launch {
-            val imageLoader = ImageLoader.Builder(applicationContext)
-                .memoryCache { MemoryCache.Builder(applicationContext).maxSizePercent(0.75).build() } // Настройте доступную память
-                .build()
-
             val request = ImageRequest.Builder(applicationContext)
                 .data(imageUrl)
                 .build()
-
             // Загрузка изображения и кеширование в фоновом потоке
             try {
                 val result = imageLoader.execute(request)

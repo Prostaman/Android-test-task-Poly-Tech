@@ -19,7 +19,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TestingTaskPolyTech"
         tools:targetApi="31"
-        android:name=".app.MyApp">
+        android:name=".app.MyApp"
+        >
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"

@@ -1,5 +1,6 @@
 package ua.polytech.testingtask.presentation.catalog
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +32,7 @@ class CatalogViewModel @Inject constructor(
                 _suggestedCategories.value = response.results
                 compareAndUpdateLocalCatalog()
             } catch (e: Exception) {
+                Log.e("Testing","error load network data:$e")
                 getCatalogFromLocalBD()
             }
         }
